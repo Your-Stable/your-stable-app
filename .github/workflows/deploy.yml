@@ -3,8 +3,8 @@ name: Deploy Vite App
 on:
   push:
     branches:
-      - main  # or your default branch
-  workflow_dispatch:  # Allows manual trigger
+      - main # or your default branch
+  workflow_dispatch: # Allows manual trigger
 permissions:
   contents: read
   pages: write

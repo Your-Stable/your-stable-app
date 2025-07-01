@@ -22,13 +22,13 @@ const App: FC = () => {
       <ThemeProvider>
         <SuiProvider
           customNetworkConfig={networkConfig}
-          defaultNetwork={ENetwork.LOCALNET}
-          walletAutoConnect={false}
+          defaultNetwork={ENetwork.MAINNET}
+          walletAutoConnect={true}
           walletSlushName={'YourStable'}
           themeSettings={themeSettings}
           customQueryClient={queryClient}
         >
-          <BrowserRouter basename="/">
+          <BrowserRouter basename="/your-stable-app">
             <Routes>
               <Route index path="/" element={<IndexPage />} />
             </Routes>

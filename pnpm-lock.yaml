@@ -54,8 +54,8 @@ importers:
         specifier: ^17.6.0
         version: 17.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       your-stable-sdk:
-        specifier: ^0.1.6
-        version: 0.1.6(@mysten/sui@1.30.1(typescript@5.8.3))
+        specifier: ^0.1.19
+        version: 0.1.19(@mysten/sui@1.30.1(typescript@5.8.3))
     devDependencies:
       '@types/node':
         specifier: ^22.15.23
@@ -2711,8 +2711,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  your-stable-sdk@0.1.6:
-    resolution: {integrity: sha512-edIdA0EqbmhWzvf9VsdlJ8LKvKP/U2c1NN32W83XlBaWgEX4Hu0GtqUHPH5t5WECrj6GSpyJwHbr3he4G2am2w==}
+  your-stable-sdk@0.1.19:
+    resolution: {integrity: sha512-+u0dxSC8LHipgxtzYkmd0XjN9cOmJW464HlrDZ3CDcv9j0D0QipsTxGoLEgZTI9msIPxQg31HN/9ybjRea/nwg==}
     peerDependencies:
       '@mysten/sui': ^1.30.1
 
@@ -5291,7 +5291,7 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  your-stable-sdk@0.1.6(@mysten/sui@1.30.1(typescript@5.8.3)):
+  your-stable-sdk@0.1.19(@mysten/sui@1.30.1(typescript@5.8.3)):
     dependencies:
       '@mysten/sui': 1.30.1(typescript@5.8.3)
 
