@@ -18,9 +18,9 @@ import { MouseEvent, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { EXPLORER_URL_VARIABLE_NAME } from '~~/config/network'
 import {
-  prepareBurnAndRedeemYourStableTransaction,
   prepareBurnYourStableTransaction,
   prepareMintYourStableTransaction,
+  prepareRedeemYourStableTransaction,
 } from '~~/dapp/helpers/transactions'
 import { transactionUrl } from '~~/helpers/network'
 import { notification } from '~~/helpers/notification'
@@ -213,7 +213,7 @@ const MintRedeemForm = ({
     } else {
       const value = BigInt(Math.floor(Number(amount) * 10 ** inputDecimals))
       if (selectedStableCoin.name === 'USDC') {
-        tx = await prepareBurnAndRedeemYourStableTransaction(
+        tx = await prepareRedeemYourStableTransaction(
           suiClient,
           yourStableCoin.type,
           value,
@@ -441,12 +441,6 @@ const MintRedeemForm = ({
               </Flex>
             </Flex>
           </Card>
-          {!isMint && selectedStableCoin.name === 'USDC' && (
-            <Text size="1" color="gray">
-              The request will be processed in 24 hours and the funds will be
-              sent directly to your wallet.
-            </Text>
-          )}
 
           {/* Action Button */}
           <Button

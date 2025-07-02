@@ -63,7 +63,7 @@ export const prepareBurnYourStableTransaction = async (
   return tx
 }
 
-export const prepareBurnAndRedeemYourStableTransaction = async (
+export const prepareRedeemYourStableTransaction = async (
   suiClient: SuiClient,
   yourStableCoinType: string,
   burnedAmount: bigint,
@@ -83,12 +83,7 @@ export const prepareBurnAndRedeemYourStableTransaction = async (
     BigInt(burnedAmount)
   )
   // stableCoin Amount to redeem
-  const buckCoin = factory.burnAndRedeemYourStableMoveCall(
-    tx,
-    yourStableCoin,
-    sender,
-    BigInt(burnedAmount)
-  )
+  const buckCoin = factory.redeemYourStableMoveCall(tx, yourStableCoin)
 
   tx.transferObjects([buckCoin], sender)
 
