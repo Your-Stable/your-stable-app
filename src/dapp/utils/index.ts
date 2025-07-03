@@ -14,3 +14,10 @@ export const formatBalance = (
     minimumFractionDigits: 0,
   }).format(balanceNumber / 10 ** decimals)
 }
+
+export const formatPercentage = (value: number) => {
+  return Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+  }).format(value)
+}
