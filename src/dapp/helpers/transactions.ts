@@ -1,9 +1,26 @@
-import { Transaction } from '@mysten/sui/transactions'
+import { Transaction, TransactionArgument } from '@mysten/sui/transactions'
 import { YourStableClient } from 'your-stable-sdk'
 import { type SuiClient } from '@mysten/sui/client'
 import { normalizeStructTag, SUI_TYPE_ARG } from '@mysten/sui/utils'
 import { formatBalance } from '../utils'
-import { YOUR_STABLE_COINS } from '../config'
+import {
+  BUCK_STSBUCK_VAULT_REDEEM_WITHDRAW_TICKET,
+  BUCK_STSBUCK_VAULT_WITHDRAW,
+  SBUCK_FLASK,
+  SBUCK_FOUNTAIN,
+  SBUCK_SAVING_VAULT_STRATEGY,
+  SBUCK_SAVING_VAULT_STRATEGY_WITHDRAW_V1,
+  ST_SBUCK_COIN_TYPE,
+  ST_SBUCK_SAVING_VAULT,
+  YOUR_STABLE_COINS,
+} from '../config'
+import {
+  CLOCK_OBJECT,
+  coinFromBalance,
+  coinIntoBalance,
+  COINS_TYPE_LIST,
+  PROTOCOL_OBJECT,
+} from 'bucket-protocol-sdk'
 
 export const prepareMintYourStableTransaction = async (
   suiClient: SuiClient,
@@ -113,7 +130,10 @@ export const claimReward = async (
   )
   const tx = new Transaction()
   const reward = factory.claimRewardMoveCall(tx)
-  tx.transferObjects([reward], sender)
+
+  const buckCoin = await withdrawStBuck(tx, reward)
+  tx.transferObjects([buckCoin], sender)
+
   return tx
 }
 
@@ -151,6 +171,44 @@ export const getTotalMinted = async ({
     YOUR_STABLE_COINS.find((coin) => coin.type === yourStableCoinType)
       ?.decimals || 9
   )
+}
+
+export async function withdrawStBuck(
+  tx: Transaction,
+  stSBuckCoin: TransactionArgument
+) {
+  const stSbuckBalance = coinIntoBalance(tx, ST_SBUCK_COIN_TYPE, stSBuckCoin)
+
+  const withdrawTicket = tx.moveCall({
+    target: BUCK_STSBUCK_VAULT_WITHDRAW,
+    typeArguments: [COINS_TYPE_LIST.BUCK, ST_SBUCK_COIN_TYPE],
+    arguments: [
+      tx.sharedObjectRef(ST_SBUCK_SAVING_VAULT),
+      stSbuckBalance,
+      tx.sharedObjectRef(CLOCK_OBJECT),
+    ],
+  })
+
+  tx.moveCall({
+    target: SBUCK_SAVING_VAULT_STRATEGY_WITHDRAW_V1,
+    arguments: [
+      tx.sharedObjectRef(SBUCK_SAVING_VAULT_STRATEGY),
+      tx.sharedObjectRef(PROTOCOL_OBJECT),
+      tx.sharedObjectRef(SBUCK_FOUNTAIN),
+      tx.sharedObjectRef(SBUCK_FLASK),
+      withdrawTicket,
+      tx.sharedObjectRef(CLOCK_OBJECT),
+    ],
+  })
+
+  const [buckBalance] = tx.moveCall({
+    target: BUCK_STSBUCK_VAULT_REDEEM_WITHDRAW_TICKET,
+    typeArguments: [COINS_TYPE_LIST.BUCK, ST_SBUCK_COIN_TYPE],
+    arguments: [tx.sharedObjectRef(ST_SBUCK_SAVING_VAULT), withdrawTicket],
+  })
+  const buckCoin = coinFromBalance(tx, COINS_TYPE_LIST.BUCK, buckBalance)
+
+  return buckCoin
 }
 
 export async function getInputCoins(

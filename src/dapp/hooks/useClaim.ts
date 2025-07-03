@@ -44,6 +44,7 @@ const useClaim = ({ yourStableCoinType }: { yourStableCoinType: string }) => {
         yourStableCoinType,
         account?.address
       )
+
       const txHash = transact(tx)
       return txHash
     },
