@@ -1,8 +1,9 @@
-export type COIN_TYPE = 'USDC' | 'BUCK' | 'upUSD'
+export type COIN_TYPE = 'USDC' | 'BUCK' | 'upUSD' | 'repUSD'
 export type COINS = {
   name: COIN_TYPE
   type: string
   decimals: number
+  instantRedeem?: boolean
 }
 
 export const STABLE_COINS: COINS[] = [
@@ -23,6 +24,13 @@ export const YOUR_STABLE_COINS: COINS[] = [
     name: 'upUSD',
     type: '0x5de877a152233bdd59c7269e2b710376ca271671e9dd11076b1ff261b2fd113c::up_usd::UP_USD',
     decimals: 6,
+    instantRedeem: true,
+  },
+  {
+    name: 'repUSD',
+    type: '0x4c72c155fcc91d61db5ea109566999b16369a3fe891a906dab70658b12bd757c::rep_usd::REP_USD',
+    decimals: 6,
+    instantRedeem: false,
   },
 ]
 
