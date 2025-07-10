@@ -6,9 +6,13 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import useGetReward from './useGetReward'
 import { notification } from '~~/helpers/notification'
+import useGetRewardHistory from './useGetRewardHistory'
 
 const useClaim = ({ yourStableCoinType }: { yourStableCoinType: string }) => {
   const account = useCurrentAccount()
+  const { refetch: refetchRewardHistory } = useGetRewardHistory({
+    yourStableCoinType,
+  })
   const [isPending, setIsPending] = useState(false)
   const [notificationId, setNotificationId] = useState<string>()
   const { data: rewardValue, refetch } = useGetReward({
@@ -25,6 +29,7 @@ const useClaim = ({ yourStableCoinType }: { yourStableCoinType: string }) => {
       toast.dismiss(notificationId)
       notification.txSuccess(`Claimed ${rewardValue} BUCK`, notificationId)
       refetch()
+      refetchRewardHistory()
       setIsPending(false)
     },
     onError: (error) => {
