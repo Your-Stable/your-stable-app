@@ -5,6 +5,9 @@ import useGetTotalMinted from '../hooks/useGetTotalMinted'
 import { COINS } from '../config'
 import useGetRewardApy from '../hooks/useGetRewardApy'
 import { formatPercentage } from '../utils'
+import useGetRewardHistory from '../hooks/useGetRewardHistory'
+import { useState } from 'react'
+import ClaimHistoryModal from './ClaimHistoryModal'
 
 const ClaimForm = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
   const { data: rewardValue } = useGetReward({
@@ -16,11 +19,17 @@ const ClaimForm = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
   const { mutate: claim, isPending } = useClaim({
     yourStableCoinType: yourStableCoin.type,
   })
+  const [isClaimHistoryOpen, setIsClaimHistoryOpen] = useState(false)
 
   const { data: rewardApy, isPending: isGetRewardApyPending } =
     useGetRewardApy()
+
+  const { data: rewardHistory } = useGetRewardHistory({
+    yourStableCoinType: yourStableCoin.type,
+  })
+  console.log(rewardHistory)
   return (
-    <Card variant="classic" className="w-full p-6">
+    <Card variant="classic" className="my-2 w-full p-6">
       <Flex direction="column" gap="4">
         <Flex direction="column" gap="4">
           <Flex justify="between">
@@ -46,6 +55,11 @@ const ClaimForm = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
             </Text>
           </Flex>
         </Flex>
+        <ClaimHistoryModal
+          yourStableCoin={yourStableCoin}
+          isClaimHistoryOpen={isClaimHistoryOpen}
+          setIsClaimHistoryOpen={setIsClaimHistoryOpen}
+        />
         <Button
           variant="solid"
           size="3"
