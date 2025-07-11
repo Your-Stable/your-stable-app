@@ -62,11 +62,11 @@ const ClaimHistoryModal = ({
                   {formatTimestamp(Number(item.timestamp))}
                 </Flex>
                 <Flex align="center" justify="end" className="text-sm">
-                  {item.buck || item.sbuck} {item.buck ? 'BUCK' : 'sBUCK'}
+                  {item.buck} BUCK
                 </Flex>
                 <Flex align="center" justify="end" className="text-sm">
                   <Link
-                    href={`${MAINNET_EXPLORER_URL}/tx/${item.tx}`}
+                    href={`${MAINNET_EXPLORER_URL}/txblock/${item.tx}`}
                     target="_blank"
                   >
                     <Flex

@@ -38,14 +38,6 @@ const useGetRewardHistory = ({
             tx: tx,
             timestamp: event.timestampMs,
           })
-        } else {
-          const sbuck = (event.parsedJson as { st_sbuck_reward: number })
-            .st_sbuck_reward
-          result.push({
-            sbuck: formatBalance(sbuck, 9),
-            tx: tx,
-            timestamp: event.timestampMs,
-          })
         }
       }
 
