@@ -24,7 +24,7 @@ const ClaimHistoryModal = ({
           Claim History
         </Button>
       </Dialog.Trigger>
-      <Dialog.Content className="w-full max-w-md rounded-md bg-[#011631] p-6">
+      <Dialog.Content className="w-full max-w-md rounded-md p-6">
         <Flex justify="between" pb="4">
           <Dialog.Title>Claim History</Dialog.Title>
           <Dialog.Close className="cursor-pointer">
@@ -33,24 +33,13 @@ const ClaimHistoryModal = ({
         </Flex>
         <Flex direction="column" gap="4">
           <Grid columns="3" gap="4">
-            <Flex
-              align="center"
-              className="text-sm font-normal text-[rgba(255,255,255,0.5)]"
-            >
+            <Flex align="center" className="text-sm font-normal">
               Time
             </Flex>
-            <Flex
-              align="center"
-              justify="end"
-              className="text-sm font-normal text-[rgba(255,255,255,0.5)]"
-            >
+            <Flex align="center" justify="end" className="text-sm font-normal">
               Claim Reward
             </Flex>
-            <Flex
-              align="center"
-              justify="end"
-              className="text-sm font-normal text-[rgba(255,255,255,0.5)]"
-            >
+            <Flex align="center" justify="end" className="text-sm font-normal">
               Txn
             </Flex>
           </Grid>
