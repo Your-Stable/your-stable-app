@@ -28,11 +28,16 @@ const useGetRewardHistory = ({
           order: 'descending',
           limit: 2,
         })
-        const target = events.data.find(
-          (e) => e.type.indexOf('StrategyLossEvent') !== -1
+
+        const withdrawEvent = events.data.find(
+          (e) =>
+            e.type.indexOf(
+              `0x2a721777dc1fcf7cda19492ad7c2272ee284214652bde3e9740e2f49c3bff457::vault::WithdrawEvent<0xd01d27939064d79e4ae1179cd11cfeeff23943f32b1a842ea1a1e15a0045d77d::st_sbuck::ST_SBUCK>`
+            ) !== -1
         )
-        if (target) {
-          const buck = (target.parsedJson as { withdrawn: number }).withdrawn
+
+        if (withdrawEvent) {
+          const buck = (withdrawEvent.parsedJson as { amount: number }).amount
           result.push({
             buck: formatBalance(buck, 9),
             tx: tx,
