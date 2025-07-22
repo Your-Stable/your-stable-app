@@ -122,6 +122,20 @@ export const prepareRedeemYourStableTransaction = async (
   return tx
 }
 
+export const prepareUpdateSupplyLimitTransaction = async (
+  suiClient: SuiClient,
+  yourStableCoinType: string,
+  supplyLimit: bigint
+) => {
+  const tx = new Transaction()
+  const yourStableClient = await YourStableClient.initialize(
+    suiClient,
+    yourStableCoinType
+  )
+  yourStableClient.setBasicLimitMoveCall(tx, supplyLimit)
+  return tx
+}
+
 export const getRewardValue = async (
   suiClient: SuiClient,
   yourStableCoinType: string
@@ -180,6 +194,40 @@ export const getTotalMinted = async ({
 
   return formatBalance(
     totalMinted,
+    YOUR_STABLE_COINS.find((coin) => coin.type === yourStableCoinType)
+      ?.decimals || 9
+  )
+}
+
+export const getFactoryCap = async ({
+  suiClient,
+  yourStableCoinType,
+}: {
+  suiClient: SuiClient
+  yourStableCoinType: string
+}) => {
+  const factory = await YourStableClient.initialize(
+    suiClient,
+    yourStableCoinType
+  )
+  const cap = factory.factoryCap
+  return cap
+}
+
+export const getSupplyLimit = async ({
+  suiClient,
+  yourStableCoinType,
+}: {
+  suiClient: SuiClient
+  yourStableCoinType: string
+}) => {
+  const factory = await YourStableClient.initialize(
+    suiClient,
+    yourStableCoinType
+  )
+  const supplyLimit = factory.factory.basicSupply.limit
+  return formatBalance(
+    supplyLimit,
     YOUR_STABLE_COINS.find((coin) => coin.type === yourStableCoinType)
       ?.decimals || 9
   )

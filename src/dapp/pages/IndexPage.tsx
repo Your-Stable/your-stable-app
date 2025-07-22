@@ -7,6 +7,8 @@ import CustomConnectButton from '~~/components/CustomConnectButton'
 import useGetClaimableAccount from '../hooks/useGetClaimableAccount'
 import { COINS, YOUR_STABLE_COINS } from '../config'
 import ClaimForm from '../components/ClaimForm'
+import AdvanceSettings from '../components/AdvanceSettings'
+import useGetFactoryCapOwner from '../hooks/useGetFactoryCapOwner'
 
 const IndexPage: FC = () => {
   const currentAccount = useCurrentAccount()
@@ -22,6 +24,14 @@ const IndexPage: FC = () => {
     Array.isArray(claimableAccounts) &&
     claimableAccounts?.length > 0 &&
     claimableAccounts.includes(currentAccount?.address)
+  const { data: factoryCapOwner } = useGetFactoryCapOwner({
+    yourStableCoinType: yourStableCoin.type,
+  })
+
+  const hasFactoryCapPermission =
+    !!factoryCapOwner &&
+    !!currentAccount?.address &&
+    factoryCapOwner === currentAccount?.address
 
   return (
     <Layout>
@@ -34,6 +44,9 @@ const IndexPage: FC = () => {
               setYourStableCoin={setYourStableCoin}
             />
             {canClaim && <ClaimForm yourStableCoin={yourStableCoin} />}
+            {hasFactoryCapPermission && (
+              <AdvanceSettings yourStableCoin={yourStableCoin} />
+            )}
           </>
         ) : (
           <CustomConnectButton />

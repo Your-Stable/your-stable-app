@@ -5,7 +5,6 @@ import useGetTotalMinted from '../hooks/useGetTotalMinted'
 import { COINS } from '../config'
 import useGetRewardApy from '../hooks/useGetRewardApy'
 import { formatPercentage } from '../utils'
-import useGetRewardHistory from '../hooks/useGetRewardHistory'
 import { useState } from 'react'
 import ClaimHistoryModal from './ClaimHistoryModal'
 
@@ -24,10 +23,6 @@ const ClaimForm = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
   const { data: rewardApy, isPending: isGetRewardApyPending } =
     useGetRewardApy()
 
-  const { data: rewardHistory } = useGetRewardHistory({
-    yourStableCoinType: yourStableCoin.type,
-  })
-  console.log(rewardHistory)
   return (
     <Card variant="classic" className="my-2 w-full p-6">
       <Flex direction="column" gap="4">
