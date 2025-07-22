@@ -145,6 +145,7 @@ export const getRewardValue = async (
     yourStableCoinType
   )
   const rewardValue = await factory.getRewardsBuckAmount()
+
   return formatBalance(rewardValue, 9)
 }
 

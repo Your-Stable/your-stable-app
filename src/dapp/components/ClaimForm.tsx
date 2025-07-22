@@ -4,9 +4,10 @@ import useClaim from '../hooks/useClaim'
 import useGetTotalMinted from '../hooks/useGetTotalMinted'
 import { COINS } from '../config'
 import useGetRewardApy from '../hooks/useGetRewardApy'
-import { formatPercentage } from '../utils'
+import { formatBalance, formatPercentage } from '../utils'
 import { useState } from 'react'
 import ClaimHistoryModal from './ClaimHistoryModal'
+import useGetRewardHistory from '../hooks/useGetRewardHistory'
 
 const ClaimForm = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
   const { data: rewardValue } = useGetReward({
@@ -23,6 +24,15 @@ const ClaimForm = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
   const { data: rewardApy, isPending: isGetRewardApyPending } =
     useGetRewardApy()
 
+  const { data: rewardHistory } = useGetRewardHistory({
+    yourStableCoinType: yourStableCoin.type,
+  })
+
+  const totalClaimed = rewardHistory?.reduce(
+    (acc, curr) => acc + Number(curr.buck),
+    0
+  )
+
   return (
     <Card variant="classic" className="my-2 w-full p-6">
       <Flex direction="column" gap="4">
@@ -34,7 +44,7 @@ const ClaimForm = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
             </Text>
           </Flex>
           <Flex justify="between">
-            <Text size="2">Reward APY:</Text>
+            <Text size="2">Rewards APY:</Text>
             {isGetRewardApyPending ? (
               <Skeleton className="h-5 w-16" />
             ) : (
@@ -44,9 +54,15 @@ const ClaimForm = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
             )}
           </Flex>
           <Flex justify="between">
-            <Text size="2">Unclaimed Reward:</Text>
+            <Text size="2">Unclaimed Rewards:</Text>
             <Text size="2" weight="medium">
               {rewardValue} BUCK
+            </Text>
+          </Flex>
+          <Flex justify="between">
+            <Text size="2">Total claimed Rewards:</Text>
+            <Text size="2" weight="medium">
+              {formatBalance(totalClaimed || 0)} BUCK
             </Text>
           </Flex>
         </Flex>
