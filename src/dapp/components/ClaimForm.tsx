@@ -8,16 +8,42 @@ import { formatBalance, formatPercentage } from '../utils'
 import { useState } from 'react'
 import ClaimHistoryModal from './ClaimHistoryModal'
 import useGetRewardHistory from '../hooks/useGetRewardHistory'
+import toast from 'react-hot-toast'
+import { notification } from '~~/helpers/notification'
 
 const ClaimForm = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
-  const { data: rewardValue } = useGetReward({
+  const [notificationId, setNotificationId] = useState<string>()
+  const [isTransacting, setIsTransacting] = useState(false)
+  const { refetch: refetchRewardHistory } = useGetRewardHistory({
+    yourStableCoinType: yourStableCoin.type,
+  })
+  const { data: rewardValue, refetch: refetchReward } = useGetReward({
     yourStableCoinType: yourStableCoin.type,
   })
   const { data: totalMinted } = useGetTotalMinted({
     yourStableCoinType: yourStableCoin.type,
   })
-  const { mutate: claim, isPending } = useClaim({
+  const { mutate: claim, isPending: isClaiming } = useClaim({
     yourStableCoinType: yourStableCoin.type,
+    onBeforeStart: () => {
+      setIsTransacting(true)
+      toast.loading('Claiming rewards')
+      const nId = notification.txLoading()
+      setNotificationId(nId)
+    },
+    onSuccess: () => {
+      toast.dismiss(notificationId)
+      notification.txSuccess(`Claimed ${rewardValue} BUCK`, notificationId)
+      refetchRewardHistory()
+      refetchReward()
+      setIsTransacting(false)
+    },
+    onError: (error) => {
+      toast.dismiss(notificationId)
+      notification.txError(error, error.message, notificationId)
+      toast.error(error.message)
+      setIsTransacting(false)
+    },
   })
   const [isClaimHistoryOpen, setIsClaimHistoryOpen] = useState(false)
 
@@ -32,6 +58,8 @@ const ClaimForm = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
     (acc, curr) => acc + Number(curr.buck),
     0
   )
+
+  const isPending = isTransacting || isClaiming
 
   return (
     <Card variant="classic" className="my-2 w-full p-6">

@@ -17,17 +17,42 @@ import { useState } from 'react'
 import useGetSupplyLimit from '../hooks/useGetSupplyLimit'
 import useSetSupplyLimit from '../hooks/useSetSupplyLimit'
 import { Loader2Icon } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { notification } from '~~/helpers/notification'
 
 const AdvanceSettings = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
+  const [isTransacting, setIsTransacting] = useState(false)
+  const [notificationId, setNotificationId] = useState<string>()
   const [isOpen, setIsOpen] = useState(true)
   const [limit, setLimit] = useState('')
-  const { data: supplyLimit } = useGetSupplyLimit({
+  const { data: supplyLimit, refetch: refetchSupplyLimit } = useGetSupplyLimit({
     yourStableCoinType: yourStableCoin.type,
   })
+  const { mutate: updateSupplyLimit, isPending: isUpdatingSupplyLimit } =
+    useSetSupplyLimit({
+      yourStableCoinType: yourStableCoin.type,
+      onBeforeStart: () => {
+        setIsTransacting(true)
+        toast.loading('Updating supply limit')
+        const nId = notification.txLoading()
+        setNotificationId(nId)
+      },
+      onSuccess: () => {
+        toast.dismiss(notificationId)
+        notification.txSuccess(`Supply limit updated`, notificationId)
+        refetchSupplyLimit()
+        setIsTransacting(false)
+      },
+      onError: (error) => {
+        setIsTransacting(false)
+        toast.dismiss(notificationId)
+        notification.txError(error, error.message, notificationId)
+      },
+    })
 
-  const { mutate: updateSupplyLimit, isPending } = useSetSupplyLimit({
-    yourStableCoinType: yourStableCoin.type,
-  })
+  const isPending = isTransacting || isUpdatingSupplyLimit
+  const isDisabled = isPending || !limit
+
   return (
     <Card variant="classic" className="my-2 w-full p-6">
       <Accordion
@@ -69,13 +94,11 @@ const AdvanceSettings = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
                 size="3"
                 className="cursor-pointer"
                 color="blue"
-                disabled={isPending}
+                disabled={isDisabled}
                 onClick={() => updateSupplyLimit(BigInt(limit))}
               >
-                {isPending ? (
+                {isPending && (
                   <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  ''
                 )}
                 Update supply limit
               </Button>

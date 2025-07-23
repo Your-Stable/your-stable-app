@@ -2,44 +2,27 @@ import { useMutation } from '@tanstack/react-query'
 import { claimReward } from '../helpers/transactions'
 import { useCurrentAccount, useSuiClient } from '@mysten/dapp-kit'
 import useTransact from '@suiware/kit/useTransact'
-import { useState } from 'react'
-import toast from 'react-hot-toast'
-import useGetReward from './useGetReward'
-import { notification } from '~~/helpers/notification'
-import useGetRewardHistory from './useGetRewardHistory'
 
-const useClaim = ({ yourStableCoinType }: { yourStableCoinType: string }) => {
+const useClaim = ({
+  yourStableCoinType,
+  onBeforeStart,
+  onSuccess,
+  onError,
+}: {
+  yourStableCoinType: string
+  onBeforeStart: () => void
+  onSuccess: () => void
+  onError: (error: Error) => void
+}) => {
   const account = useCurrentAccount()
-  const { refetch: refetchRewardHistory } = useGetRewardHistory({
-    yourStableCoinType,
-  })
-  const [isPending, setIsPending] = useState(false)
-  const [notificationId, setNotificationId] = useState<string>()
-  const { data: rewardValue, refetch } = useGetReward({
-    yourStableCoinType,
-  })
+
   const { transact } = useTransact({
-    onBeforeStart: () => {
-      setIsPending(true)
-      toast.loading('Claiming')
-      const nId = notification.txLoading()
-      setNotificationId(nId)
-    },
-    onSuccess: () => {
-      toast.dismiss(notificationId)
-      notification.txSuccess(`Claimed ${rewardValue} BUCK`, notificationId)
-      refetch()
-      refetchRewardHistory()
-      setIsPending(false)
-    },
-    onError: (error) => {
-      setIsPending(false)
-      toast.dismiss(notificationId)
-      notification.txError(error, error.message, notificationId)
-    },
+    onBeforeStart,
+    onSuccess,
+    onError,
   })
   const suiClient = useSuiClient()
-  const mutation = useMutation({
+  return useMutation({
     mutationFn: async () => {
       if (!account?.address) {
         throw new Error('No account found')
@@ -54,10 +37,6 @@ const useClaim = ({ yourStableCoinType }: { yourStableCoinType: string }) => {
       return txHash
     },
   })
-  return {
-    ...mutation,
-    isPending: mutation.isPending || isPending,
-  }
 }
 
 export default useClaim
