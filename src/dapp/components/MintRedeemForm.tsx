@@ -161,8 +161,9 @@ const MintRedeemForm = ({
 
         insufficientBalance:
           amount &&
-          Number(amount) > 0 &&
-          Number(amount) > Number(stableCoinBalance?.totalBalance || 0),
+          Number(amount) * 10 ** selectedStableCoin.decimals > 0 &&
+          Number(amount) * 10 ** selectedStableCoin.decimals >
+            Number(stableCoinBalance?.totalBalance || 0),
       }
     } else {
       // Burn: Deposit your stable ? Receive stable coin
@@ -177,8 +178,9 @@ const MintRedeemForm = ({
         // outputDecimals: STABLE_COIN_DECIMALS[selectedStableCoin],
         insufficientBalance:
           amount &&
-          Number(amount) > 0 &&
-          Number(amount) > Number(yourStableBalance?.totalBalance || 0),
+          Number(amount) * 10 ** yourStableCoin.decimals > 0 &&
+          Number(amount) * 10 ** yourStableCoin.decimals >
+            Number(yourStableBalance?.totalBalance || 0),
       }
     }
   }, [
@@ -241,6 +243,8 @@ const MintRedeemForm = ({
 
     create(tx)
   }
+
+  const isDisabled = !!insufficientBalance || !amount || isPending
 
   return (
     <div className="my-2 flex w-96 flex-grow flex-col items-center justify-center">
@@ -464,7 +468,7 @@ const MintRedeemForm = ({
             variant="solid"
             size="3"
             onClick={handleOnClick}
-            disabled={!!insufficientBalance || !amount || isPending}
+            disabled={isDisabled}
             color={isMint ? 'blue' : 'orange'}
             className="cursor-pointer"
           >

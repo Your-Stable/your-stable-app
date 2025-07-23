@@ -30,7 +30,7 @@ const AdvanceSettings = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
   })
   const { mutate: updateSupplyLimit, isPending: isUpdatingSupplyLimit } =
     useSetSupplyLimit({
-      yourStableCoinType: yourStableCoin.type,
+      yourStableCoin,
       onBeforeStart: () => {
         setIsTransacting(true)
         toast.loading('Updating supply limit')
@@ -95,7 +95,7 @@ const AdvanceSettings = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
                 className="cursor-pointer"
                 color="blue"
                 disabled={isDisabled}
-                onClick={() => updateSupplyLimit(BigInt(limit))}
+                onClick={() => updateSupplyLimit(Number(limit))}
               >
                 {isPending && (
                   <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />

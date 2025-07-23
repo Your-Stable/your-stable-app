@@ -1,4 +1,4 @@
-export type COIN_TYPE = 'USDC' | 'BUCK' | 'upUSD' | 'repUSD'
+export type COIN_TYPE = 'USDC' | 'BUCK' | 'upUSD' | 'repUSD' | 'JUSD'
 export type COINS = {
   name: COIN_TYPE
   type: string
@@ -29,6 +29,12 @@ export const YOUR_STABLE_COINS: COINS[] = [
   {
     name: 'repUSD',
     type: '0x4c72c155fcc91d61db5ea109566999b16369a3fe891a906dab70658b12bd757c::rep_usd::REP_USD',
+    decimals: 6,
+    instantRedeem: false,
+  },
+  {
+    name: 'JUSD',
+    type: '0xf66915da6723ac048e54bbd2b85463ed3d09253bc4de4f835aa274fd1a28a866::jusd::JUSD',
     decimals: 6,
     instantRedeem: false,
   },
