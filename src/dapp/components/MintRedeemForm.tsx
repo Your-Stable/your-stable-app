@@ -38,6 +38,7 @@ const MintRedeemForm = ({
   setYourStableCoin: (coin: COINS) => void
 }) => {
   const currentAccount = useCurrentAccount()
+  const userAddress = currentAccount?.address
   const suiClient = useSuiClient()
   const { useNetworkVariable } = useNetworkConfig()
   const [notificationId, setNotificationId] = useState<string>()
@@ -72,11 +73,11 @@ const MintRedeemForm = ({
   } = useSuiClientQuery(
     'getBalance',
     {
-      owner: currentAccount?.address || '',
+      owner: userAddress || '',
       coinType: selectedStableCoin.type,
     },
     {
-      enabled: !!currentAccount?.address,
+      enabled: !!userAddress,
       gcTime: 10000,
       queryKey: ['balance', selectedStableCoin.type],
     }
@@ -89,11 +90,11 @@ const MintRedeemForm = ({
   } = useSuiClientQuery(
     'getBalance',
     {
-      owner: currentAccount?.address || '',
+      owner: userAddress || '',
       coinType: yourStableCoin.type,
     },
     {
-      enabled: !!currentAccount?.address,
+      enabled: !!userAddress,
       gcTime: 10000,
       queryKey: ['balance', yourStableCoin.type],
     }
@@ -200,7 +201,7 @@ const MintRedeemForm = ({
 
   const handleOnClick = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    if (!currentAccount?.address) return
+    if (!userAddress) return
 
     let tx
 

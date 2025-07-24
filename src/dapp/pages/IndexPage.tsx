@@ -12,6 +12,9 @@ import useGetFactoryCapOwner from '../hooks/useGetFactoryCapOwner'
 
 const IndexPage: FC = () => {
   const currentAccount = useCurrentAccount()
+
+  const userAddress = currentAccount?.address
+
   const [yourStableCoin, setYourStableCoin] = useState<COINS>(
     YOUR_STABLE_COINS[0]
   )
@@ -19,19 +22,18 @@ const IndexPage: FC = () => {
     suiClient: useSuiClient(),
     yourStableCoinType: yourStableCoin.type,
   })
-  const canClaim =
-    currentAccount?.address &&
-    Array.isArray(claimableAccounts) &&
-    claimableAccounts?.length > 0 &&
-    claimableAccounts.includes(currentAccount?.address)
+
   const { data: factoryCapOwner } = useGetFactoryCapOwner({
     yourStableCoinType: yourStableCoin.type,
   })
 
+  const hasFactoryCapOwner = !!factoryCapOwner
+  const hasUserAddress = !!userAddress
+
+  const canClaim = hasUserAddress && claimableAccounts?.includes(userAddress)
+
   const hasFactoryCapPermission =
-    !!factoryCapOwner &&
-    !!currentAccount?.address &&
-    factoryCapOwner === currentAccount?.address
+    hasFactoryCapOwner && hasUserAddress && factoryCapOwner === userAddress
 
   return (
     <Layout>
