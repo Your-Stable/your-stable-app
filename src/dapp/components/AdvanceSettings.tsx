@@ -42,6 +42,7 @@ const AdvanceSettings = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
         notification.txSuccess(`Supply limit updated`, notificationId)
         refetchSupplyLimit()
         setIsTransacting(false)
+        setLimit('')
       },
       onError: (error) => {
         setIsTransacting(false)
