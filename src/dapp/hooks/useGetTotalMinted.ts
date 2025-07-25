@@ -1,6 +1,6 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import { getTotalMinted } from '../helpers/transactions'
-import { useSuiClient } from '@mysten/dapp-kit'
+import useFactory from './useFactory'
 
 type UseGetTotalMintedProps = Omit<
   UseQueryOptions<string, Error, string>,
@@ -13,18 +13,16 @@ const useGetTotalMinted = ({
   yourStableCoinType,
   ...options
 }: UseGetTotalMintedProps) => {
-  const suiClient = useSuiClient()
+  const { data: factory } = useFactory(yourStableCoinType)
   return useQuery({
     queryKey: ['total-minted', yourStableCoinType],
     queryFn: async () => {
-      const totalMinted = await getTotalMinted({
-        suiClient,
-        yourStableCoinType,
-      })
+      if (!factory) throw new Error('Factory not found')
+      const totalMinted = await getTotalMinted(yourStableCoinType, factory)
       return totalMinted
     },
     ...options,
-    enabled: !!suiClient && !!yourStableCoinType,
+    enabled: !!factory && !!yourStableCoinType,
   })
 }
 

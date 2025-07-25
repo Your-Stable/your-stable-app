@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query'
 import { claimReward } from '../helpers/transactions'
-import { useCurrentAccount, useSuiClient } from '@mysten/dapp-kit'
+import { useCurrentAccount } from '@mysten/dapp-kit'
 import useTransact from '@suiware/kit/useTransact'
+import useFactory from './useFactory'
 
 const useClaim = ({
   yourStableCoinType,
@@ -21,17 +22,14 @@ const useClaim = ({
     onSuccess,
     onError,
   })
-  const suiClient = useSuiClient()
+  const { data: factory } = useFactory(yourStableCoinType)
   return useMutation({
     mutationFn: async () => {
       if (!account?.address) {
         throw new Error('No account found')
       }
-      const tx = await claimReward(
-        suiClient,
-        yourStableCoinType,
-        account?.address
-      )
+      if (!factory) throw new Error('Factory not found')
+      const tx = await claimReward(account?.address, factory)
 
       const txHash = transact(tx)
       return txHash

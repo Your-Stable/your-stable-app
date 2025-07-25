@@ -2,7 +2,7 @@ import { FC, useState } from 'react'
 import Layout from '~~/components/layout/Layout'
 import MintRedeemForm from '~~/dapp/components/MintRedeemForm'
 import NetworkSupportChecker from '../../components/NetworkSupportChecker'
-import { useCurrentAccount, useSuiClient } from '@mysten/dapp-kit'
+import { useCurrentAccount } from '@mysten/dapp-kit'
 import CustomConnectButton from '~~/components/CustomConnectButton'
 import useGetClaimableAccount from '../hooks/useGetClaimableAccount'
 import { COINS, YOUR_STABLE_COINS } from '../config'
@@ -19,7 +19,6 @@ const IndexPage: FC = () => {
     YOUR_STABLE_COINS[0]
   )
   const { data: claimableAccounts } = useGetClaimableAccount({
-    suiClient: useSuiClient(),
     yourStableCoinType: yourStableCoin.type,
   })
 

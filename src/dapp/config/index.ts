@@ -35,7 +35,7 @@ export const YOUR_STABLE_COINS: COINS[] = [
   {
     name: 'JUSD',
     type: '0xf66915da6723ac048e54bbd2b85463ed3d09253bc4de4f835aa274fd1a28a866::jusd::JUSD',
-    decimals: 6,
+    decimals: 9,
     instantRedeem: false,
   },
 ]

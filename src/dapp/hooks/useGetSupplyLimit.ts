@@ -1,28 +1,27 @@
-import { useCurrentAccount, useSuiClient } from '@mysten/dapp-kit'
+import { useCurrentAccount } from '@mysten/dapp-kit'
 import { useQuery } from '@tanstack/react-query'
 import { getSupplyLimit } from '../helpers/transactions'
+import useFactory from './useFactory'
 
 const useGetSupplyLimit = ({
   yourStableCoinType,
 }: {
   yourStableCoinType: string
 }) => {
-  const suiClient = useSuiClient()
+  const { data: factory } = useFactory(yourStableCoinType)
   const account = useCurrentAccount()
   return useQuery({
     queryKey: ['supply-limit', yourStableCoinType],
     queryFn: async () => {
+      if (!factory) throw new Error('Factory not found')
       if (!account) {
         throw new Error('Account not found')
       }
-      const supplyLimit = await getSupplyLimit({
-        suiClient,
-        yourStableCoinType,
-      })
+      const supplyLimit = await getSupplyLimit(yourStableCoinType, factory)
 
       return supplyLimit
     },
-    enabled: !!account,
+    enabled: !!factory && !!account,
   })
 }
 

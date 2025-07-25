@@ -29,6 +29,7 @@ import useNetworkConfig from '~~/hooks/useNetworkConfig'
 import { formatBalance } from '~~/dapp/utils'
 import { COINS, STABLE_COINS, YOUR_STABLE_COINS } from '../config'
 import useGetTotalMinted from '../hooks/useGetTotalMinted'
+import useFactory from '../hooks/useFactory'
 
 const MintRedeemForm = ({
   yourStableCoin,
@@ -47,6 +48,8 @@ const MintRedeemForm = ({
   const { refetch: refetchTotalMinted } = useGetTotalMinted({
     yourStableCoinType: yourStableCoin.type,
   })
+
+  const { data: factory } = useFactory(yourStableCoin.type)
 
   const [selectedStableCoin, setSelectedStableCoin] = useState<COINS>(
     STABLE_COINS[0]
@@ -202,6 +205,7 @@ const MintRedeemForm = ({
   const handleOnClick = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     if (!userAddress) return
+    if (!factory) throw new Error('Factory not found')
 
     let tx
 
@@ -210,9 +214,9 @@ const MintRedeemForm = ({
       tx = await prepareMintYourStableTransaction(
         suiClient,
         selectedStableCoin.type,
-        yourStableCoin.type,
         value,
-        currentAccount.address
+        currentAccount.address,
+        factory
       )
     } else {
       const value = BigInt(Math.floor(Number(amount) * 10 ** inputDecimals))
@@ -222,14 +226,16 @@ const MintRedeemForm = ({
             suiClient,
             yourStableCoin.type,
             value,
-            currentAccount.address
+            currentAccount.address,
+            factory
           )
         } else {
           tx = await prepareBurnAndRedeemYourStableTransaction(
             suiClient,
             yourStableCoin.type,
             value,
-            currentAccount.address
+            currentAccount.address,
+            factory
           )
         }
       } else {
@@ -237,7 +243,8 @@ const MintRedeemForm = ({
           suiClient,
           yourStableCoin.type,
           value,
-          currentAccount.address
+          currentAccount.address,
+          factory
         )
       }
     }
