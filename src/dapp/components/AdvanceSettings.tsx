@@ -23,7 +23,7 @@ import { notification } from '~~/helpers/notification'
 const AdvanceSettings = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
   const [isTransacting, setIsTransacting] = useState(false)
   const [notificationId, setNotificationId] = useState<string>()
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
   const [limit, setLimit] = useState('')
   const { data: supplyLimit, refetch: refetchSupplyLimit } = useGetSupplyLimit({
     yourStableCoinType: yourStableCoin.type,
