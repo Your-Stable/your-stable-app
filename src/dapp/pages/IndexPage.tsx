@@ -2,26 +2,37 @@ import { FC, useState } from 'react'
 import Layout from '~~/components/layout/Layout'
 import MintRedeemForm from '~~/dapp/components/MintRedeemForm'
 import NetworkSupportChecker from '../../components/NetworkSupportChecker'
-import { useCurrentAccount, useSuiClient } from '@mysten/dapp-kit'
+import { useCurrentAccount } from '@mysten/dapp-kit'
 import CustomConnectButton from '~~/components/CustomConnectButton'
 import useGetClaimableAccount from '../hooks/useGetClaimableAccount'
 import { COINS, YOUR_STABLE_COINS } from '../config'
 import ClaimForm from '../components/ClaimForm'
+import AdvanceSettings from '../components/AdvanceSettings'
+import useGetFactoryCapOwner from '../hooks/useGetFactoryCapOwner'
 
 const IndexPage: FC = () => {
   const currentAccount = useCurrentAccount()
+
+  const userAddress = currentAccount?.address
+
   const [yourStableCoin, setYourStableCoin] = useState<COINS>(
     YOUR_STABLE_COINS[0]
   )
   const { data: claimableAccounts } = useGetClaimableAccount({
-    suiClient: useSuiClient(),
     yourStableCoinType: yourStableCoin.type,
   })
-  const canClaim =
-    currentAccount?.address &&
-    Array.isArray(claimableAccounts) &&
-    claimableAccounts?.length > 0 &&
-    claimableAccounts.includes(currentAccount?.address)
+
+  const { data: factoryCapOwner } = useGetFactoryCapOwner({
+    yourStableCoinType: yourStableCoin.type,
+  })
+
+  const hasFactoryCapOwner = !!factoryCapOwner
+  const hasUserAddress = !!userAddress
+
+  const canClaim = hasUserAddress && claimableAccounts?.includes(userAddress)
+
+  const hasFactoryCapPermission =
+    hasFactoryCapOwner && hasUserAddress && factoryCapOwner === userAddress
 
   return (
     <Layout>
@@ -34,6 +45,9 @@ const IndexPage: FC = () => {
               setYourStableCoin={setYourStableCoin}
             />
             {canClaim && <ClaimForm yourStableCoin={yourStableCoin} />}
+            {hasFactoryCapPermission && (
+              <AdvanceSettings yourStableCoin={yourStableCoin} />
+            )}
           </>
         ) : (
           <CustomConnectButton />

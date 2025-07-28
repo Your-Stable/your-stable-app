@@ -1,31 +1,28 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import { getClaimableAccounts } from '../helpers/transactions'
-import { SuiClient } from '@mysten/sui/client'
+import useFactory from './useFactory'
 
 type UseGetClaimableAccountProps = Omit<
   UseQueryOptions<string[], Error, string[]>,
   'queryKey' | 'queryFn'
 > & {
-  suiClient: SuiClient
   yourStableCoinType: string
 }
 
 const useGetClaimableAccount = ({
-  suiClient,
   yourStableCoinType,
   ...options
 }: UseGetClaimableAccountProps) => {
+  const { data: factory } = useFactory(yourStableCoinType)
   return useQuery({
     queryKey: ['claimable-account', yourStableCoinType],
     queryFn: async () => {
-      const claimableAccounts = await getClaimableAccounts({
-        suiClient,
-        yourStableCoinType,
-      })
+      if (!factory) throw new Error('Factory not found')
+      const claimableAccounts = await getClaimableAccounts(factory)
       return claimableAccounts
     },
     ...options,
-    enabled: !!suiClient && !!yourStableCoinType,
+    enabled: !!factory && !!yourStableCoinType,
   })
 }
 

@@ -8,14 +8,10 @@ import { YOUR_STABLE_COINS } from '../config'
 export const prepareMintYourStableTransaction = async (
   suiClient: SuiClient,
   depositedStableCoinType: string,
-  yourStableCoinType: string,
   depositedAmount: bigint,
-  sender: string
+  sender: string,
+  factory: YourStableClient
 ) => {
-  const factory = await YourStableClient.initialize(
-    suiClient,
-    yourStableCoinType
-  )
   const tx = new Transaction()
   // example: 0.01 USDC
   const usdcCoin = await getInputCoins(
@@ -40,12 +36,9 @@ export const prepareBurnYourStableTransaction = async (
   suiClient: SuiClient,
   yourStableCoinType: string,
   burnedAmount: bigint,
-  sender: string
+  sender: string,
+  factory: YourStableClient
 ) => {
-  const factory = await YourStableClient.initialize(
-    suiClient,
-    yourStableCoinType
-  )
   const tx = new Transaction()
 
   const yourStableCoin = await getInputCoins(
@@ -67,12 +60,9 @@ export const prepareBurnAndRedeemYourStableTransaction = async (
   suiClient: SuiClient,
   yourStableCoinType: string,
   burnedAmount: bigint,
-  sender: string
+  sender: string,
+  factory: YourStableClient
 ) => {
-  const factory = await YourStableClient.initialize(
-    suiClient,
-    yourStableCoinType
-  )
   const tx = new Transaction()
 
   const yourStableCoin = await getInputCoins(
@@ -99,12 +89,9 @@ export const prepareRedeemYourStableTransaction = async (
   suiClient: SuiClient,
   yourStableCoinType: string,
   burnedAmount: bigint,
-  sender: string
+  sender: string,
+  factory: YourStableClient
 ) => {
-  const factory = await YourStableClient.initialize(
-    suiClient,
-    yourStableCoinType
-  )
   const tx = new Transaction()
 
   const yourStableCoin = await getInputCoins(
@@ -122,27 +109,25 @@ export const prepareRedeemYourStableTransaction = async (
   return tx
 }
 
-export const getRewardValue = async (
-  suiClient: SuiClient,
-  yourStableCoinType: string
+export const prepareUpdateSupplyLimitTransaction = async (
+  supplyLimit: bigint,
+  factory: YourStableClient
 ) => {
-  const factory = await YourStableClient.initialize(
-    suiClient,
-    yourStableCoinType
-  )
+  const tx = new Transaction()
+  factory.setBasicLimitMoveCall(tx, supplyLimit)
+  return tx
+}
+
+export const getRewardValue = async (factory: YourStableClient) => {
   const rewardValue = await factory.getRewardsBuckAmount()
+
   return formatBalance(rewardValue, 9)
 }
 
 export const claimReward = async (
-  suiClient: SuiClient,
-  yourStableCoinType: string,
-  sender: string
+  sender: string,
+  factory: YourStableClient
 ) => {
-  const factory = await YourStableClient.initialize(
-    suiClient,
-    yourStableCoinType
-  )
   const tx = new Transaction()
   const reward = factory.claimRewardMoveCall(tx)
 
@@ -151,35 +136,35 @@ export const claimReward = async (
   return tx
 }
 
-export const getClaimableAccounts = async ({
-  suiClient,
-  yourStableCoinType,
-}: {
-  suiClient: SuiClient
-  yourStableCoinType: string
-}) => {
-  const factory = await YourStableClient.initialize(
-    suiClient,
-    yourStableCoinType
-  )
+export const getClaimableAccounts = async (factory: YourStableClient) => {
   return factory.factory.beneficiary.toJSON().contents.map((content) => content)
 }
 
-export const getTotalMinted = async ({
-  suiClient,
-  yourStableCoinType,
-}: {
-  suiClient: SuiClient
-  yourStableCoinType: string
-}) => {
-  const factory = await YourStableClient.initialize(
-    suiClient,
-    yourStableCoinType
-  )
+export const getTotalMinted = async (
+  yourStableCoinType: string,
+  factory: YourStableClient
+) => {
   const totalMinted = factory.factory.basicSupply.toJSON().supply
 
   return formatBalance(
     totalMinted,
+    YOUR_STABLE_COINS.find((coin) => coin.type === yourStableCoinType)
+      ?.decimals || 9
+  )
+}
+
+export const getFactoryCap = async (factory: YourStableClient) => {
+  const cap = factory.factoryCap
+  return cap
+}
+
+export const getSupplyLimit = async (
+  yourStableCoinType: string,
+  factory: YourStableClient
+) => {
+  const supplyLimit = factory.factory.basicSupply.limit
+  return formatBalance(
+    supplyLimit,
     YOUR_STABLE_COINS.find((coin) => coin.type === yourStableCoinType)
       ?.decimals || 9
   )

@@ -1,6 +1,6 @@
-import { useSuiClient } from '@mysten/dapp-kit'
 import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import { getRewardValue } from '~~/dapp/helpers/transactions'
+import useFactory from './useFactory'
 
 type UseGetRewardProps = Omit<
   UseQueryOptions<string, Error, string, string[]>,
@@ -13,11 +13,15 @@ const useGetReward = ({
   yourStableCoinType,
   ...options
 }: UseGetRewardProps) => {
-  const suiClient = useSuiClient()
+  const { data: factory } = useFactory(yourStableCoinType)
   return useQuery({
     queryKey: ['rewardValue', yourStableCoinType],
-    queryFn: () => getRewardValue(suiClient, yourStableCoinType),
+    queryFn: async () => {
+      if (!factory) throw new Error('Factory not found')
+      return getRewardValue(factory)
+    },
     ...options,
+    enabled: !!factory,
   })
 }
 

@@ -29,6 +29,7 @@ import useNetworkConfig from '~~/hooks/useNetworkConfig'
 import { formatBalance } from '~~/dapp/utils'
 import { COINS, STABLE_COINS, YOUR_STABLE_COINS } from '../config'
 import useGetTotalMinted from '../hooks/useGetTotalMinted'
+import useFactory from '../hooks/useFactory'
 
 const MintRedeemForm = ({
   yourStableCoin,
@@ -38,6 +39,7 @@ const MintRedeemForm = ({
   setYourStableCoin: (coin: COINS) => void
 }) => {
   const currentAccount = useCurrentAccount()
+  const userAddress = currentAccount?.address
   const suiClient = useSuiClient()
   const { useNetworkVariable } = useNetworkConfig()
   const [notificationId, setNotificationId] = useState<string>()
@@ -46,6 +48,8 @@ const MintRedeemForm = ({
   const { refetch: refetchTotalMinted } = useGetTotalMinted({
     yourStableCoinType: yourStableCoin.type,
   })
+
+  const { data: factory } = useFactory(yourStableCoin.type)
 
   const [selectedStableCoin, setSelectedStableCoin] = useState<COINS>(
     STABLE_COINS[0]
@@ -72,11 +76,11 @@ const MintRedeemForm = ({
   } = useSuiClientQuery(
     'getBalance',
     {
-      owner: currentAccount?.address || '',
+      owner: userAddress || '',
       coinType: selectedStableCoin.type,
     },
     {
-      enabled: !!currentAccount?.address,
+      enabled: !!userAddress,
       gcTime: 10000,
       queryKey: ['balance', selectedStableCoin.type],
     }
@@ -89,11 +93,11 @@ const MintRedeemForm = ({
   } = useSuiClientQuery(
     'getBalance',
     {
-      owner: currentAccount?.address || '',
+      owner: userAddress || '',
       coinType: yourStableCoin.type,
     },
     {
-      enabled: !!currentAccount?.address,
+      enabled: !!userAddress,
       gcTime: 10000,
       queryKey: ['balance', yourStableCoin.type],
     }
@@ -161,8 +165,9 @@ const MintRedeemForm = ({
 
         insufficientBalance:
           amount &&
-          Number(amount) > 0 &&
-          Number(amount) > Number(stableCoinBalance?.totalBalance || 0),
+          Number(amount) * 10 ** selectedStableCoin.decimals > 0 &&
+          Number(amount) * 10 ** selectedStableCoin.decimals >
+            Number(stableCoinBalance?.totalBalance || 0),
       }
     } else {
       // Burn: Deposit your stable ? Receive stable coin
@@ -177,8 +182,9 @@ const MintRedeemForm = ({
         // outputDecimals: STABLE_COIN_DECIMALS[selectedStableCoin],
         insufficientBalance:
           amount &&
-          Number(amount) > 0 &&
-          Number(amount) > Number(yourStableBalance?.totalBalance || 0),
+          Number(amount) * 10 ** yourStableCoin.decimals > 0 &&
+          Number(amount) * 10 ** yourStableCoin.decimals >
+            Number(yourStableBalance?.totalBalance || 0),
       }
     }
   }, [
@@ -198,7 +204,8 @@ const MintRedeemForm = ({
 
   const handleOnClick = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    if (!currentAccount?.address) return
+    if (!userAddress) return
+    if (!factory) throw new Error('Factory not found')
 
     let tx
 
@@ -207,9 +214,9 @@ const MintRedeemForm = ({
       tx = await prepareMintYourStableTransaction(
         suiClient,
         selectedStableCoin.type,
-        yourStableCoin.type,
         value,
-        currentAccount.address
+        currentAccount.address,
+        factory
       )
     } else {
       const value = BigInt(Math.floor(Number(amount) * 10 ** inputDecimals))
@@ -219,14 +226,16 @@ const MintRedeemForm = ({
             suiClient,
             yourStableCoin.type,
             value,
-            currentAccount.address
+            currentAccount.address,
+            factory
           )
         } else {
           tx = await prepareBurnAndRedeemYourStableTransaction(
             suiClient,
             yourStableCoin.type,
             value,
-            currentAccount.address
+            currentAccount.address,
+            factory
           )
         }
       } else {
@@ -234,13 +243,16 @@ const MintRedeemForm = ({
           suiClient,
           yourStableCoin.type,
           value,
-          currentAccount.address
+          currentAccount.address,
+          factory
         )
       }
     }
 
     create(tx)
   }
+
+  const isDisabled = !!insufficientBalance || !amount || isPending
 
   return (
     <div className="my-2 flex w-96 flex-grow flex-col items-center justify-center">
@@ -464,7 +476,7 @@ const MintRedeemForm = ({
             variant="solid"
             size="3"
             onClick={handleOnClick}
-            disabled={!!insufficientBalance || !amount || isPending}
+            disabled={isDisabled}
             color={isMint ? 'blue' : 'orange'}
             className="cursor-pointer"
           >
