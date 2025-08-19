@@ -54,9 +54,9 @@ const ClaimForm = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
     yourStableCoinType: yourStableCoin.type,
   })
 
-  const totalClaimed = rewardHistory?.reduce(
-    (acc, curr) => acc + Number(curr.buck),
-    0
+  const totalClaimed = formatBalance(
+    rewardHistory?.reduce((acc, curr) => acc + BigInt(curr.rawBuck), 0n) || 0n,
+    9
   )
 
   const isPending = isTransacting || isClaiming
@@ -90,7 +90,7 @@ const ClaimForm = ({ yourStableCoin }: { yourStableCoin: COINS }) => {
           <Flex justify="between">
             <Text size="2">Total claimed Rewards:</Text>
             <Text size="2" weight="medium">
-              {formatBalance(totalClaimed || 0)} BUCK
+              {totalClaimed} BUCK
             </Text>
           </Flex>
         </Flex>

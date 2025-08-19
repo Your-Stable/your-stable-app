@@ -40,6 +40,7 @@ const useGetRewardHistory = ({
           const buck = (withdrawEvent.parsedJson as { amount: number }).amount
           result.push({
             buck: formatBalance(buck, 9),
+            rawBuck: buck,
             tx: tx,
             timestamp: event.timestampMs,
           })
